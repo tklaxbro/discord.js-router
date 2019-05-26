@@ -1,6 +1,6 @@
 {
   "name": "discord.js-router",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "This is a Base Bot Router for Discord.js this allows for the Handling of Plugins, and a Trigger Easily.",
   "main": "index.js",
   "scripts": {
