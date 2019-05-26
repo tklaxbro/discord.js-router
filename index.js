@@ -71,6 +71,7 @@ Discord.prototype.Start = function(options) {
       });
     }
     instance.ReloadPlugins().then(() => {
+      instance.BotHandler();
       instance.ChatHandler();
       if (instance.options.reactions) instance.monitorReactions();
       if (instance.options.members) instance.monitorMembers();
@@ -79,8 +80,15 @@ Discord.prototype.Start = function(options) {
     });
 };
 
-Discord.prototype.ChatHandler = function() {
+Discord.prototype.BotHandler = function() {
   instance.bot.on('ready', instance.EmitEvent());
+  instance.bot.on('disconnected', function() {
+    instance.emit('disconnected');
+    instance.Login();
+  });
+};
+
+Discord.prototype.ChatHandler = function() {
   instance.bot.on('message', function(message) {
     if (message.author.id == instance.bot.user.id) return;
     if (message.author.bot) return;
@@ -89,10 +97,6 @@ Discord.prototype.ChatHandler = function() {
     var args = message.content.split(/ +/);
     let cmd = args[0].slice(instance.options.trigger.length).toLowerCase();
     instance.emit('cmd', cmd, args, message);
-  });
-  instance.bot.on('disconnected', function() {
-    instance.emit('disconnected');
-    instance.Login();
   });
 };
 
