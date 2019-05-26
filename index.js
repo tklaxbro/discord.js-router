@@ -48,12 +48,10 @@ function Discord() {
 }
 
 Discord.prototype.Start = function(options) {
-  var Stage = 0;
     instance.options = options;
     if ('SHARD_ID' in process.env) {
       instance.bot = new djs.Client();
     } else {
-      console.log(++Stage);
       optionsSchema.required.push(("token"));
       let chk = v.validate(options, optionsSchema);
       if (chk.errors.length > 0) {
@@ -62,18 +60,17 @@ Discord.prototype.Start = function(options) {
       instance.bot = new djs.Client({
         respawn: true
       });
-      console.log(++Stage);
     }
-    console.log(++Stage);
+    console.log(require.main.paths);
+    console.log(path.join(require.main.paths[0],"..",options.plugins_dir));
     fs.access(path.join(require.main.paths[0],"..",options.plugins_dir), function(err) {
       if (err && err.code === 'ENOENT') {
         return console.log(new Error(`Folder ${require.main.paths[1]}/${options.plugins_dir} does not exist. Please Create it.`));
       } else {
-        console.log(++Stage);
         instance.plugins = requireAll({
           dirname: path.join(require.main.paths[0],"..",options.plugins_dir)
         });
-        console.log(++Stage);
+
         instance.bot.on('ready', function() {
           instance.emit('ready')
         });
@@ -88,7 +85,11 @@ Discord.prototype.Start = function(options) {
         });
         instance.bot.on('disconnected', function() {
           instance.emit('disconnected');
-          instance.bot.login(instance.options.token);
+          if ('SHARD_ID' in process.env) {
+            instance.bot.login();
+          } else {
+            instance.bot.login(instance.options.token);
+          }
         });
         instance.bot.on('messageReactionAdd', function(reaction, user) {
         	instance.emit('msgReactionAdd', reaction, user);
@@ -113,9 +114,11 @@ Discord.prototype.Start = function(options) {
         instance.bot.on('guildDelete', function(guild) {
         	instance.emit('guildParted', guild);
         });
-
-        instance.bot.login(instance.options.token);
-        console.log(++Stage);
+        if ('SHARD_ID' in process.env) {
+          instance.bot.login();
+        } else {
+          instance.bot.login(instance.options.token);
+        }
       }
     });
 
@@ -128,6 +131,13 @@ Discord.prototype.setActivity = function(title, type) {
   });
 };
 
+Discord.prototype.Restart = function() {
+  if ('SHARD_ID' in process.env) {
+    instance.bot.login();
+  } else {
+    instance.bot.login(instance.options.token);
+  }
+};
 
 util.inherits(Discord, EventEmitter);
 
