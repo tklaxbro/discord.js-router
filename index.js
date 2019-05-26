@@ -81,7 +81,7 @@ Discord.prototype.Start = function(options) {
 };
 
 Discord.prototype.BotHandler = function() {
-  instance.bot.on('ready', instance.EmitEvent());
+  instance.bot.on('ready', instance.EmitEvent);
   instance.bot.on('disconnected', function() {
     instance.emit('disconnected');
     instance.Login();
@@ -107,18 +107,18 @@ Discord.prototype.EmitEvent = function() {
 };
 
 Discord.prototype.monitorReactions = function() {
-  instance.bot.on('messageReactionAdd', instance.EmitEvent());
-  instance.bot.on('messageReactionRemove', instance.EmitEvent());
+  instance.bot.on('messageReactionAdd', instance.EmitEvent);
+  instance.bot.on('messageReactionRemove', instance.EmitEvent);
 };
 
 Discord.prototype.monitorMembers = function() {
-  instance.bot.on('guildMemberRemove', instance.EmitEvent());
-  instance.bot.on('guildMemberAdd', instance.EmitEvent());
+  instance.bot.on('guildMemberRemove', instance.EmitEvent);
+  instance.bot.on('guildMemberAdd', instance.EmitEvent);
 };
 
 Discord.prototype.monitorGuilds = function() {
-  instance.bot.on('guildCreate', instance.EmitEvent());
-  instance.bot.on('guildDelete', instance.EmitEvent());
+  instance.bot.on('guildCreate', instance.EmitEvent);
+  instance.bot.on('guildDelete', instance.EmitEvent);
 };
 
 
