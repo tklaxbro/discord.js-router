@@ -83,11 +83,7 @@ Discord.prototype.Start = function(options) {
         });
         instance.bot.on('disconnected', function() {
           instance.emit('disconnected');
-          if ('SHARD_ID' in process.env) {
-            instance.bot.login();
-          } else {
-            instance.bot.login(instance.options.token);
-          }
+          instance.Login();
         });
         instance.bot.on('messageReactionAdd', function(reaction, user) {
         	instance.emit('msgReactionAdd', reaction, user);
@@ -112,11 +108,7 @@ Discord.prototype.Start = function(options) {
         instance.bot.on('guildDelete', function(guild) {
         	instance.emit('guildParted', guild);
         });
-        if ('SHARD_ID' in process.env) {
-          instance.bot.login();
-        } else {
-          instance.bot.login(instance.options.token);
-        }
+        instance.Login();
       }
     });
 
@@ -130,10 +122,12 @@ Discord.prototype.setActivity = function(title, type) {
 };
 
 Discord.prototype.Restart = function() {
-  if ('SHARD_ID' in process.env) {
-    instance.bot.login();
+  if (instance.bot.status == 0) {
+    instance.bot.destroy().then(() => {
+      instance.Login();
+    });
   } else {
-    instance.bot.login(instance.options.token);
+    instance.Login();
   }
 };
 
@@ -142,6 +136,13 @@ Discord.prototype.ReloadPlugins = function() {
     dirname: path.join(require.main.paths[0], "..", instance.options.plugins_dir)
   });
 };
+Discord.prototype.Login = function() {
+  if ('SHARD_ID' in process.env) {
+    instance.bot.login();
+  } else {
+    instance.bot.login(instance.options.token);
+  }
+}
 
 util.inherits(Discord, EventEmitter);
 
