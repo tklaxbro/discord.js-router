@@ -48,7 +48,7 @@ function Discord() {
 }
 
 Discord.prototype.Start = function(options) {
-    instance.options = options;
+    if (options) instance.options = options;
     if ('SHARD_ID' in process.env) {
       instance.bot = new djs.Client();
     } else {
@@ -61,12 +61,12 @@ Discord.prototype.Start = function(options) {
         respawn: true
       });
     }
-    fs.access(path.join(require.main.paths[0],"..",options.plugins_dir), function(err) {
+    fs.access(path.join(require.main.paths[0], "..", instance.options.plugins_dir), function(err) {
       if (err && err.code === 'ENOENT') {
-        return console.log(new Error(`Folder ${require.main.paths[0]}/${options.plugins_dir} does not exist. Please Create it.`));
+        return console.log(new Error(`Folder ${require.main.paths[0]}/${instance.options.plugins_dir} does not exist. Please Create it.`));
       } else {
         instance.plugins = requireAll({
-          dirname: path.join(require.main.paths[0],"..",options.plugins_dir)
+          dirname: path.join(require.main.paths[0], "..", instance.options.plugins_dir)
         });
 
         instance.bot.on('ready', function() {
@@ -75,10 +75,10 @@ Discord.prototype.Start = function(options) {
         instance.bot.on('message', function(message) {
           if (message.author.id == instance.bot.user.id) return;
           if (message.author.bot) return;
-          if (message.content.length < options.trigger.length) return;
-          if (!message.content.startsWith(options.trigger)) return;
+          if (message.content.length < instance.options.trigger.length) return;
+          if (!message.content.startsWith(instance.options.trigger)) return;
           var args = message.content.split(/ +/);
-          let cmd = args[0].slice(options.trigger.length).toLowerCase();
+          let cmd = args[0].slice(instance.options.trigger.length).toLowerCase();
           instance.emit('cmd', cmd, args, message);
         });
         instance.bot.on('disconnected', function() {
@@ -135,6 +135,12 @@ Discord.prototype.Restart = function() {
   } else {
     instance.bot.login(instance.options.token);
   }
+};
+
+Discord.prototype.ReloadPlugins = function() {
+  instance.plugins = requireAll({
+    dirname: path.join(require.main.paths[0], "..", instance.options.plugins_dir)
+  });
 };
 
 util.inherits(Discord, EventEmitter);
