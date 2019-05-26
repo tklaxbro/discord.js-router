@@ -65,9 +65,7 @@ Discord.prototype.Start = function(options) {
       if (err && err.code === 'ENOENT') {
         return console.log(new Error(`Folder ${require.main.paths[0]}/${instance.options.plugins_dir} does not exist. Please Create it.`));
       } else {
-        instance.plugins = requireAll({
-          dirname: path.join(require.main.paths[0], "..", instance.options.plugins_dir)
-        });
+        instance.ReloadPlugins();
 
         instance.bot.on('ready', function() {
           instance.emit('ready')
