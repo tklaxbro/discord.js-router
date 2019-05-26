@@ -61,11 +61,9 @@ Discord.prototype.Start = function(options) {
         respawn: true
       });
     }
-    console.log(require.main.paths);
-    console.log(path.join(require.main.paths[0],"..",options.plugins_dir));
     fs.access(path.join(require.main.paths[0],"..",options.plugins_dir), function(err) {
       if (err && err.code === 'ENOENT') {
-        return console.log(new Error(`Folder ${require.main.paths[1]}/${options.plugins_dir} does not exist. Please Create it.`));
+        return console.log(new Error(`Folder ${require.main.paths[0]}/${options.plugins_dir} does not exist. Please Create it.`));
       } else {
         instance.plugins = requireAll({
           dirname: path.join(require.main.paths[0],"..",options.plugins_dir)
