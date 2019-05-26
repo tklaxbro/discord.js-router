@@ -71,15 +71,15 @@ Discord.prototype.Start = function(options) {
       });
     }
     instance.ReloadPlugins().then(() => {
-      instance.monitorBase();
-      instance.monitorReactions();
-      instance.monitorMembers();
-      instance.monitorGuilds();
+      instance.monitorBot();
+      if (instance.options.reactions) instance.monitorReactions();
+      if (instance.options.members) instance.monitorMembers();
+      if (instance.options.guilds) instance.monitorGuilds();
       instance.Login();
     });
 };
 
-Discord.prototype.monitorBase = function() {
+Discord.prototype.monitorBot = function() {
   instance.bot.on('ready', function() {
     instance.emit('ready')
   });
@@ -99,36 +99,30 @@ Discord.prototype.monitorBase = function() {
 };
 
 Discord.prototype.monitorReactions = function() {
-  if (instance.options.reactions) {
-    instance.bot.on('messageReactionAdd', function(reaction, user) {
-      instance.emit('msgReactionAdd', reaction, user);
-    });
-    instance.bot.on('messageReactionRemove', function(reaction, user) {
-      instance.emit('msgReactionRemove', reaction, user);
-    });
-  }
+  instance.bot.on('messageReactionAdd', function(reaction, user) {
+    instance.emit('msgReactionAdd', reaction, user);
+  });
+  instance.bot.on('messageReactionRemove', function(reaction, user) {
+    instance.emit('msgReactionRemove', reaction, user);
+  });
 };
 
 Discord.prototype.monitorMembers = function() {
-  if (instance.options.members) {
-    instance.bot.on('guildMemberRemove', function(member) {
-      instance.emit('userPart', member);
-    });
-    instance.bot.on('guildMemberAdd', function(member) {
-      instance.emit('userJoin', member);
-    });
-  }
+  instance.bot.on('guildMemberRemove', function(member) {
+    instance.emit('userPart', member);
+  });
+  instance.bot.on('guildMemberAdd', function(member) {
+    instance.emit('userJoin', member);
+  });
 };
 
 Discord.prototype.monitorGuilds = function() {
-  if (instance.options.guilds) {
-    instance.bot.on('guildCreate', function(guild) {
-      instance.emit('guildJoined', guild);
-    });
-    instance.bot.on('guildDelete', function(guild) {
-      instance.emit('guildParted', guild);
-    });
-  }
+  instance.bot.on('guildCreate', function(guild) {
+    instance.emit('guildJoined', guild);
+  });
+  instance.bot.on('guildDelete', function(guild) {
+    instance.emit('guildParted', guild);
+  });
 };
 
 Discord.prototype.setActivity = function(title, type) {
