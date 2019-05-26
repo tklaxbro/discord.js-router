@@ -71,7 +71,7 @@ Discord.prototype.Start = function(options) {
       });
     }
     instance.ReloadPlugins().then(() => {
-      instance.monitorBot();
+      instance.monitorChat();
       if (instance.options.reactions) instance.monitorReactions();
       if (instance.options.members) instance.monitorMembers();
       if (instance.options.guilds) instance.monitorGuilds();
@@ -79,7 +79,7 @@ Discord.prototype.Start = function(options) {
     });
 };
 
-Discord.prototype.monitorBot = function() {
+Discord.prototype.monitorChat = function() {
   instance.bot.on('ready', function() {
     instance.emit('ready')
   });
@@ -106,6 +106,7 @@ Discord.prototype.monitorReactions = function() {
     instance.emit('msgReactionRemove', reaction, user);
   });
 };
+
 
 Discord.prototype.monitorMembers = function() {
   instance.bot.on('guildMemberRemove', function(member) {
