@@ -23,6 +23,15 @@ var optionsSchema = {
     trigger: {
       type: "string"
     },
+    reactions: {
+      type: "boolean"
+    },
+    guilds: {
+      type: "boolean"
+    },
+    members: {
+      type: "boolean"
+    },
     owners: {
       type: "array",
       minItems: 1,
@@ -33,7 +42,7 @@ var optionsSchema = {
       }
     }
   },
-  required: ["plugins_dir", "owners"]
+  required: ["plugins_dir", "owners", "trigger"]
 };
 
 var instance;
@@ -61,56 +70,65 @@ Discord.prototype.Start = function(options) {
         respawn: true
       });
     }
-    fs.access(path.join(require.main.paths[0], "..", instance.options.plugins_dir), function(err) {
-      if (err && err.code === 'ENOENT') {
-        return console.log(new Error(`Folder ${require.main.paths[0]}/${instance.options.plugins_dir} does not exist. Please Create it.`));
-      } else {
-        instance.ReloadPlugins();
-
-        instance.bot.on('ready', function() {
-          instance.emit('ready')
-        });
-        instance.bot.on('message', function(message) {
-          if (message.author.id == instance.bot.user.id) return;
-          if (message.author.bot) return;
-          if (message.content.length < instance.options.trigger.length) return;
-          if (!message.content.startsWith(instance.options.trigger)) return;
-          var args = message.content.split(/ +/);
-          let cmd = args[0].slice(instance.options.trigger.length).toLowerCase();
-          instance.emit('cmd', cmd, args, message);
-        });
-        instance.bot.on('disconnected', function() {
-          instance.emit('disconnected');
-          instance.Login();
-        });
-        instance.bot.on('messageReactionAdd', function(reaction, user) {
-        	instance.emit('msgReactionAdd', reaction, user);
-        });
-
-        instance.bot.on('messageReactionRemove', function(reaction, user) {
-        	instance.emit('msgReactionRemove', reaction, user);
-        });
-
-        instance.bot.on('guildMemberRemove', function(member) {
-        	instance.emit('userPart', member);
-        });
-
-        instance.bot.on('guildMemberAdd', function(member) {
-        	instance.emit('userJoin', member);
-        });
-
-        instance.bot.on('guildCreate', function(guild) {
-        	instance.emit('guildJoined', guild);
-        });
-
-        instance.bot.on('guildDelete', function(guild) {
-        	instance.emit('guildParted', guild);
-        });
-        instance.Login();
-      }
+    instance.ReloadPlugins().then(() => {
+      instance.monitorBase();
+      instance.monitorReactions();
+      instance.monitorMembers();
+      instance.monitorGuilds();
+      instance.Login();
     });
+};
 
+Discord.prototype.monitorBase = function() {
+  instance.bot.on('ready', function() {
+    instance.emit('ready')
+  });
+  instance.bot.on('message', function(message) {
+    if (message.author.id == instance.bot.user.id) return;
+    if (message.author.bot) return;
+    if (message.content.length < instance.options.trigger.length) return;
+    if (!message.content.startsWith(instance.options.trigger)) return;
+    var args = message.content.split(/ +/);
+    let cmd = args[0].slice(instance.options.trigger.length).toLowerCase();
+    instance.emit('cmd', cmd, args, message);
+  });
+  instance.bot.on('disconnected', function() {
+    instance.emit('disconnected');
+    instance.Login();
+  });
+};
 
+Discord.prototype.monitorReactions = function() {
+  if (instance.options.reactions) {
+    instance.bot.on('messageReactionAdd', function(reaction, user) {
+      instance.emit('msgReactionAdd', reaction, user);
+    });
+    instance.bot.on('messageReactionRemove', function(reaction, user) {
+      instance.emit('msgReactionRemove', reaction, user);
+    });
+  }
+};
+
+Discord.prototype.monitorMembers = function() {
+  if (instance.options.members) {
+    instance.bot.on('guildMemberRemove', function(member) {
+      instance.emit('userPart', member);
+    });
+    instance.bot.on('guildMemberAdd', function(member) {
+      instance.emit('userJoin', member);
+    });
+  }
+};
+
+Discord.prototype.monitorGuilds = function() {
+  if (instance.options.guilds) {
+    instance.bot.on('guildCreate', function(guild) {
+      instance.emit('guildJoined', guild);
+    });
+    instance.bot.on('guildDelete', function(guild) {
+      instance.emit('guildParted', guild);
+    });
+  }
 };
 
 Discord.prototype.setActivity = function(title, type) {
@@ -130,8 +148,17 @@ Discord.prototype.Restart = function() {
 };
 
 Discord.prototype.ReloadPlugins = function() {
-  instance.plugins = requireAll({
-    dirname: path.join(require.main.paths[0], "..", instance.options.plugins_dir)
+  return new Promise((res, rej) => {
+    fs.access(path.join(require.main.paths[0], "..", instance.options.plugins_dir), function(err) {
+      if (err && err.code === 'ENOENT') {
+        return console.log(new Error(`Folder ${require.main.paths[0]}/${instance.options.plugins_dir} does not exist. Please Create it.`));
+      } else {
+        instance.plugins = requireAll({
+          dirname: path.join(require.main.paths[0], "..", instance.options.plugins_dir)
+        });
+        res();
+      }
+    });
   });
 };
 Discord.prototype.Login = function() {

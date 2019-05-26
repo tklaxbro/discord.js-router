@@ -23,10 +23,24 @@ $ npm install discord.js-router
 
 ## Usage of the Discord.js Router
 
-#### configure
+### Configure
 
+#### Config Options
 
+##### Base
+```javascript
+{
+  plugins_dir: String, // Required
+  token: String, //Required unless you Launch it as a Shard of Discord.js
+  trigger: String, //Required
+  reactions: Boolean, // Optional
+  guilds: Boolean, // Optional
+  members: Boolean, // Optional
+  owners: Array of String // Required
+}
+```
 
+##### Example
 ```javascript
 
 var discord = require('discord.js-router');
@@ -41,6 +55,8 @@ discord.Start({
 ```
 
 ## Issue
+
+If any Issues Please Submit them on the Github!
 
 ## Example
 
