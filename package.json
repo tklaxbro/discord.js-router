@@ -1,0 +1,48 @@
+{
+  "name": "discord.js-router",
+  "version": "0.0.1",
+  "description": "This is a Base Bot Router for Discord.js this allows for the Handling of Plugins, and a Trigger Easily.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "homepage": "https://github.com/Bioblaze/discord.js-router/",
+  "keywords": [
+    "discord",
+    "bot",
+    "discord.js",
+    "framework",
+    "bot framework",
+    "router",
+    "discord router",
+    "bioblaze"
+  ],
+  "maintainers": [
+    {
+      "name": "Bioblaze Payne",
+      "email": "BioblazePayne@gmail.com",
+      "web": "https://BioblazePayne.site/"
+    }
+  ],
+  "author": {
+    "name": "Bioblaze Payne",
+    "email": "BioblazePayne@gmail.com",
+    "url": "https://BioblazePayne.site/"
+  },
+  "bugs": {
+    "web": "https://github.com/Bioblaze/discord.js-router/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bioblaze/discord.js-router.git"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "discord.js": "^11.5.0",
+    "jsonschema": "^1.2.4",
+    "require-all": "^3.0.0"
+  }
+}
