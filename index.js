@@ -2,8 +2,8 @@
 
 var util = require('util');
 var path = require('path');
-var events = require('events');
-var EventEmitter = events.EventEmitter;
+var events = require('eventemitter2');
+var EventEmitter = events.EventEmitter2;
 var Validator = require('jsonschema').Validator;
 var v = new Validator();
 var djs = require('discord.js');
@@ -71,7 +71,7 @@ Discord.prototype.Start = function(options) {
       });
     }
     instance.ReloadPlugins().then(() => {
-      instance.monitorChat();
+      instance.ChatHandler();
       if (instance.options.reactions) instance.monitorReactions();
       if (instance.options.members) instance.monitorMembers();
       if (instance.options.guilds) instance.monitorGuilds();
@@ -79,10 +79,8 @@ Discord.prototype.Start = function(options) {
     });
 };
 
-Discord.prototype.monitorChat = function() {
-  instance.bot.on('ready', function() {
-    instance.emit('ready')
-  });
+Discord.prototype.ChatHandler = function() {
+  instance.bot.on('ready', instance.EmitEvent());
   instance.bot.on('message', function(message) {
     if (message.author.id == instance.bot.user.id) return;
     if (message.author.bot) return;
@@ -98,33 +96,27 @@ Discord.prototype.monitorChat = function() {
   });
 };
 
-Discord.prototype.monitorReactions = function() {
-  instance.bot.on('messageReactionAdd', function(reaction, user) {
-    instance.emit('msgReactionAdd', reaction, user);
-  });
-  instance.bot.on('messageReactionRemove', function(reaction, user) {
-    instance.emit('msgReactionRemove', reaction, user);
-  });
+Discord.prototype.EmitEvent = function() {
+  var args = [this.event];
+  args = args.concat(Array.from(arguments));
+  instance.emit.apply(instance, args);
 };
 
+Discord.prototype.monitorReactions = function() {
+  instance.bot.on('messageReactionAdd', instance.EmitEvent());
+  instance.bot.on('messageReactionRemove', instance.EmitEvent());
+};
 
 Discord.prototype.monitorMembers = function() {
-  instance.bot.on('guildMemberRemove', function(member) {
-    instance.emit('userPart', member);
-  });
-  instance.bot.on('guildMemberAdd', function(member) {
-    instance.emit('userJoin', member);
-  });
+  instance.bot.on('guildMemberRemove', instance.EmitEvent());
+  instance.bot.on('guildMemberAdd', instance.EmitEvent());
 };
 
 Discord.prototype.monitorGuilds = function() {
-  instance.bot.on('guildCreate', function(guild) {
-    instance.emit('guildJoined', guild);
-  });
-  instance.bot.on('guildDelete', function(guild) {
-    instance.emit('guildParted', guild);
-  });
+  instance.bot.on('guildCreate', instance.EmitEvent());
+  instance.bot.on('guildDelete', instance.EmitEvent());
 };
+
 
 Discord.prototype.setActivity = function(title, type) {
   instance.bot.user.setActivity(title, type).catch(function(err) {
