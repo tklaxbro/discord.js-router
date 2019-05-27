@@ -1,12 +1,11 @@
-
-var options = {
+let options = {
   plugins_dir: "plugins",
   token: null, // Replace with String for the Discord Token.
   trigger: "dev!",
   owners: ["165372475562000385"]
 };
 
-var discord = require('../index.js');
+let discord = require('../index.js');
 
 discord.Start(options);
 
