@@ -78,14 +78,14 @@ class Discord extends EventEmitter {
 
   BotHandler() {
     instance.bot.on('ready', instance.EmitEvent);
-    instance.bot.on('disconnected', function() {
+    instance.bot.on('disconnected', () => {
       instance.emit('disconnected');
       instance.Login();
     });
   };
 
   ChatHandler() {
-    instance.bot.on('message', function(message) {
+    instance.bot.on('message', message => {
       if (message.author.id == instance.bot.user.id) return;
       if (message.author.bot) return;
       if (message.content.length < instance.options.trigger.length) return;
@@ -118,7 +118,7 @@ class Discord extends EventEmitter {
   };
 
   setActivity(title, type) {
-    instance.bot.user.setActivity(title, type).catch(function(err) {
+    instance.bot.user.setActivity(title, type).catch(err => {
       console.log(err);
     });
   };
@@ -135,7 +135,7 @@ class Discord extends EventEmitter {
 
   ReloadPlugins() {
     return new Promise((res, rej) => {
-      fs.access(path.join(require.main.paths[0], "..", instance.options.plugins_dir), function(err) {
+      fs.access(path.join(require.main.paths[0], "..", instance.options.plugins_dir), err => {
         if (err && err.code === 'ENOENT') {
           return console.log(new Error(`Folder ${require.main.paths[0]}/${instance.options.plugins_dir} does not exist. Please Create it.`));
         } else {
@@ -157,6 +157,6 @@ class Discord extends EventEmitter {
   };
 };
 
-module.exports = function() {
+module.exports = (() => {
   return instance || (instance = new Discord());
-}();
+})();

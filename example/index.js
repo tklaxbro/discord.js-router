@@ -9,9 +9,9 @@ let discord = require('../index.js');
 
 discord.Start(options);
 
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', err => {
 	console.log(`uncaughtException: ${err}`);
 });
-process.on('unhandledRejection', function(err) {
+process.on('unhandledRejection', err => {
   console.log(`unhandledRejection: ${err}`)
 });
